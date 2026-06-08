@@ -1,158 +1,244 @@
 "use client";
 import { useState } from "react";
-import { Car, ChevronDown, MapPin, Shield, Award, CheckCircle, ArrowRight, Menu, X, BarChart3, Phone, Mail, ExternalLink } from "lucide-react";
+import { Search, MapPin, ChevronDown, ArrowRight, Heart, Phone, Mail, Menu, X, SlidersHorizontal, Car, Fuel, Gauge, CheckCircle, ExternalLink } from "lucide-react";
 
-const STATS = [
-  { value: "487", label: "Units Live on Site" },
-  { value: "12", label: "Active Dealer Pods" },
-  { value: "R2.4M", label: "Floor Plan Deployed" },
-  { value: "54", label: "Franchise Territories" },
+const BODY_TYPES = [
+  { label: "Bakkie", icon: "🛻", count: 124 },
+  { label: "SUV", icon: "🚙", count: 98 },
+  { label: "Sedan", icon: "🚗", count: 87 },
+  { label: "Hatchback", icon: "🚘", count: 76 },
+  { label: "Luxury", icon: "✨", count: 43 },
+  { label: "Van", icon: "🚐", count: 29 },
+  { label: "Coupe", icon: "🏎️", count: 18 },
+  { label: "Convertible", icon: "🌟", count: 12 },
 ];
-const VEHICLES = [
-  { make: "Toyota", model: "Hilux 2.8 GD-6 D/C", year: 2023, price: "R485,000", location: "Sandton, GP", eligible: true },
-  { make: "VW", model: "Polo Vivo 1.4 Trendline", year: 2022, price: "R189,000", location: "Pretoria, GP", eligible: true },
-  { make: "BMW", model: "320i M Sport", year: 2021, price: "R410,000", location: "Cape Town, WC", eligible: true },
-  { make: "Ford", model: "Ranger Wildtrak 2.0 Bi-T", year: 2023, price: "R520,000", location: "Johannesburg, GP", eligible: true },
-  { make: "Hyundai", model: "Tucson 2.0 Executive", year: 2022, price: "R295,000", location: "Durban, KZN", eligible: false },
-  { make: "Mercedes", model: "C200 AMG Line", year: 2020, price: "R380,000", location: "Bloemfontein, FS", eligible: true },
+
+const MAKES = ["All Makes","BMW","Ford","Haval","Honda","Hyundai","Isuzu","Kia","Mercedes-Benz","Nissan","Renault","Toyota","VW"];
+const PROVINCES = ["All Provinces","Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape"];
+const PRICE_RANGES = ["Any Price","Under R100k","R100k – R200k","R200k – R350k","R350k – R500k","R500k – R750k","Over R750k"];
+
+const LISTINGS = [
+  { id:1, make:"Toyota", model:"Hilux 2.8 GD-6 RB Legend D/C Auto", year:2023, price:589900, km:"28,400", fuel:"Diesel", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#1a1a2e", verified:true, badge:"Finance Available" },
+  { id:2, make:"BMW", model:"320i M Sport Auto", year:2022, price:489900, km:"41,200", fuel:"Petrol", trans:"Automatic", location:"Cape Town, WC", dealer:"TC-CPT-003", bg:"#16213e", verified:true, badge:"Low Mileage" },
+  { id:3, make:"VW", model:"Tiguan 2.0 TSI R-Line 4Motion", year:2023, price:569900, km:"15,800", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"New Arrival" },
+  { id:4, make:"Ford", model:"Ranger Wildtrak 2.0 Bi-Turbo D/C 4x4", year:2023, price:619900, km:"22,100", fuel:"Diesel", trans:"Automatic", location:"Durban, KZN", dealer:"TC-DBN-001", bg:"#1a1a2e", verified:true, badge:"Finance Available" },
+  { id:5, make:"Hyundai", model:"Tucson 2.0 Premium Auto", year:2022, price:329900, km:"55,300", fuel:"Petrol", trans:"Automatic", location:"Johannesburg, GP", dealer:"TC-JHB-003", bg:"#16213e", verified:true, badge:"Price Drop" },
+  { id:6, make:"Mercedes-Benz", model:"C200 AMG Line Auto", year:2021, price:449900, km:"62,500", fuel:"Petrol", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#0f3460", verified:true, badge:"Certified" },
+  { id:7, make:"Isuzu", model:"D-Max 300 LX Auto D/C 4x4", year:2023, price:559900, km:"18,200", fuel:"Diesel", trans:"Automatic", location:"Nelspruit, Mpumalanga", dealer:"TC-MPM-001", bg:"#1a1a2e", verified:true, badge:"New Arrival" },
+  { id:8, make:"Kia", model:"Sportage 2.0 EX Auto", year:2022, price:359900, km:"38,900", fuel:"Petrol", trans:"Automatic", location:"Port Elizabeth, EC", dealer:"TC-ECP-001", bg:"#16213e", verified:false, badge:"" },
+  { id:9, make:"Honda", model:"CR-V 1.5T Executive AWD Auto", year:2022, price:419900, km:"44,700", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"Finance Available" },
 ];
-const TRUST = [
-  { icon: Shield, label: "RMI Affiliated" }, { icon: Award, label: "NADA Member" },
-  { icon: CheckCircle, label: "NCR Registered (Pending)" }, { icon: MapPin, label: "54 Verified Territories" },
-  { icon: BarChart3, label: "Dolibarr ERP Powered" }, { icon: Car, label: "NaTIS Integrated" },
+
+const DEALERS = [
+  { id:"TC-JHB-001", name:"Tuta Cars Sandton", location:"Sandton, Gauteng", units:18, rating:4.8, reviews:124 },
+  { id:"TC-CPT-003", name:"Tuta Cars Cape Town", location:"Cape Town, WC", units:12, rating:4.9, reviews:89 },
+  { id:"TC-DBN-001", name:"Tuta Cars Durban", location:"Durban, KZN", units:15, rating:4.7, reviews:67 },
 ];
-const FRANCHISE_CARDS = [
-  { amount: "R200,000", period: "once-off", label: "Franchise Fee", desc: "Full territory exclusivity + brand license" },
-  { amount: "R4,500", period: "/month", label: "Platform & ERP Fee", desc: "Multi-tenant Dolibarr + NaTIS + support" },
-  { amount: "R100,000", period: "Month 6", label: "Surety Deposit", desc: "Unlocks floor plan credit facility" },
-];
-const BENEFITS = ["Exclusive geographic territory","Multi-tenant Dolibarr ERP system","NaTIS vehicle registration integration","Floor plan finance facility (Month 6)","RMI & NADA compliance framework","Dedicated Tuta Capital account manager"];
-const STEPS = [
-  { num: "01", title: "Apply & Qualify", desc: "Submit your application. We conduct a commercial credit assessment, background check, and territory feasibility review within 5 business days." },
-  { num: "02", title: "Onboard & Launch", desc: "Your Dolibarr ERP is configured and branded. Compliance training, NaTIS access provisioned, first stock loaded. Go-live in 30 days." },
-  { num: "03", title: "Scale with Finance", desc: "Hit the Month 6 milestone and unlock your Tuta Capital floor plan facility — up to R500,000 in vehicle stock financing." },
-];
+
+function fmt(n: number) { return "R " + n.toLocaleString("en-ZA"); }
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const links = ["Home","Inventory","Become a Dealer","About","Tuta Capital"];
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-[#2A2A2A]">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur border-b border-[#1E1E1E]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#C41E3A] rounded-sm"/><span className="font-serif text-xl font-bold text-white">TUTA CARS</span></div>
-          <div className="hidden md:flex items-center gap-8">
-            {links.map(l=><a key={l} href={l==="Tuta Capital"?"https://capital.tutacars.co.za":"#"} className="text-sm text-gray-400 hover:text-white transition-colors">{l}</a>)}
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-3 h-3 bg-[#DC2626] rounded-sm"/>
+              <span className="font-serif text-xl font-bold text-white tracking-tight">TUTA CARS</span>
+            </div>
+            <div className="hidden lg:flex items-center gap-1">
+              {["Buy","Sell","Finance","Dealers","About"].map(l => (
+                <a key={l} href="#" className="px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md hover:bg-white/5 transition-colors">{l}</a>
+              ))}
+            </div>
           </div>
-          <a href="#franchise" className="hidden md:block bg-[#C41E3A] hover:bg-[#a01830] text-white text-sm font-medium px-4 py-2 rounded transition-colors">Book a Consultation</a>
-          <button className="md:hidden text-white" onClick={()=>setOpen(!open)}>{open?<X size={22}/>:<Menu size={22}/>}</button>
+          <div className="hidden md:flex items-center gap-3">
+            <a href="https://capital.tutacars.co.za" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-[#2A2A2A] hover:border-[#444] px-3 py-1.5 rounded-lg transition-colors">
+              <ExternalLink size={12}/> Dealer Portal
+            </a>
+            <a href="#partner" className="bg-[#DC2626] hover:bg-[#b91c1c] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">List Your Car</a>
+          </div>
+          <button className="md:hidden text-white" onClick={() => setOpen(!open)}>{open ? <X size={22}/> : <Menu size={22}/>}</button>
         </div>
       </div>
-      {open&&<div className="md:hidden bg-[#141414] border-t border-[#2A2A2A] px-4 py-4 space-y-3">
-        {links.map(l=><a key={l} href="#" className="block text-sm text-gray-300 hover:text-white py-1">{l}</a>)}
-        <a href="#franchise" className="block bg-[#C41E3A] text-white text-sm font-medium px-4 py-2 rounded text-center">Book a Consultation</a>
-      </div>}
+      {open && (
+        <div className="md:hidden bg-[#0A0A0A] border-t border-[#1E1E1E] px-4 py-4 space-y-2">
+          {["Buy","Sell","Finance","Dealers","About"].map(l => <a key={l} href="#" className="block text-sm text-gray-300 hover:text-white py-2">{l}</a>)}
+          <a href="#partner" className="block bg-[#DC2626] text-white text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-2">List Your Car</a>
+        </div>
+      )}
     </nav>
   );
 }
 
 function Hero() {
+  const [active, setActive] = useState("All");
+  const cats = ["All","Bakkie","SUV","Sedan","Hatchback","Luxury"];
   return (
-    <section className="min-h-screen flex flex-col justify-center pt-16 bg-[#0A0A0A]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="inline-flex items-center gap-2 bg-[#141414] border border-[#2A2A2A] rounded-full px-4 py-1.5 mb-8">
-          <div className="w-2 h-2 bg-[#C41E3A] rounded-full animate-pulse"/>
-          <span className="text-xs text-gray-400">54 Franchise Territories · Now Accepting Applications</span>
-        </div>
-        <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight max-w-4xl mb-6">
-          South Africa's Franchise <span className="text-[#C41E3A]">Dealer Network</span>
-        </h1>
-        <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mb-12">54 exclusive territories. Technology-backed operations. Floor plan finance from Month 6. Built on proven principles.</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {STATS.map(s=><div key={s.label} className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-4"><div className="font-serif text-3xl font-bold text-[#C41E3A] mb-1">{s.value}</div><div className="text-xs text-gray-400">{s.label}</div></div>)}
-        </div>
-        <div className="bg-[#141414] border border-[#2A2A2A] rounded-xl p-4 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[{label:"Make",opts:["All Makes","BMW","Ford","Hyundai","Mercedes","Toyota","VW"]},{label:"Price",opts:["Any Price","Under R150k","R150k–R250k","R250k–R400k","R400k–R600k"]},{label:"Province",opts:["All Provinces","Gauteng","Western Cape","KZN","Eastern Cape","Limpopo"]}].map(({label,opts})=>(
-              <div key={label} className="relative">
-                <select className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-gray-300 text-sm rounded-lg px-3 py-2.5 appearance-none focus:border-[#C41E3A] focus:outline-none">
-                  {opts.map(o=><option key={o}>{o}</option>)}
-                </select>
-                <ChevronDown size={14} className="absolute right-3 top-3.5 text-gray-500 pointer-events-none"/>
-              </div>
+    <section className="pt-16 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 bg-[#DC2626]/10 border border-[#DC2626]/20 rounded-full px-3 py-1 mb-6">
+            <div className="w-1.5 h-1.5 bg-[#DC2626] rounded-full animate-pulse"/>
+            <span className="text-xs text-[#DC2626] font-medium">487 vehicles available nationwide</span>
+          </div>
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-5">
+            Find your next<br/><span className="text-[#DC2626]">car with confidence</span>
+          </h1>
+          <p className="text-gray-400 text-lg mb-10 max-w-xl">Verified dealers. Transparent pricing. Finance options on most vehicles. 487 listings from 12 trusted dealer pods nationwide.</p>
+          <div className="flex gap-2 flex-wrap mb-6">
+            {cats.map(c => (
+              <button key={c} onClick={() => setActive(c)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active===c?"bg-[#DC2626] text-white":"bg-[#111] border border-[#2A2A2A] text-gray-400 hover:text-white hover:border-[#444]"}`}>{c}</button>
             ))}
-            <button className="bg-[#C41E3A] hover:bg-[#a01830] text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">Search Inventory</button>
+          </div>
+          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-2xl p-3 flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[{label:"Make",opts:MAKES},{label:"Max Price",opts:PRICE_RANGES},{label:"Province",opts:PROVINCES}].map(({label,opts}) => (
+                <div key={label} className="relative">
+                  <select className="w-full bg-[#050505] border border-[#1E1E1E] text-gray-300 text-sm rounded-xl px-3 py-3 appearance-none focus:border-[#DC2626] focus:outline-none cursor-pointer">
+                    {opts.map(o => <option key={o}>{o}</option>)}
+                  </select>
+                  <ChevronDown size={13} className="absolute right-3 top-3.5 text-gray-600 pointer-events-none"/>
+                </div>
+              ))}
+            </div>
+            <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold px-8 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 flex-shrink-0">
+              <Search size={16}/> Search
+            </button>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <a href="#inventory" className="border border-white/30 hover:border-white text-white text-sm font-medium px-6 py-3 rounded-lg transition-colors text-center">Browse All 487 Listings</a>
-          <a href="#franchise" className="bg-[#C41E3A] hover:bg-[#a01830] text-white text-sm font-medium px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2">Become a Franchisee <ArrowRight size={15}/></a>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-14">
+          {[{value:"487",label:"Live Listings"},{value:"12",label:"Verified Dealers"},{value:"9",label:"Provinces"},{value:"100%",label:"Verified Stock"}].map(s => (
+            <div key={s.label} className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-xl p-4">
+              <div className="font-serif text-2xl font-bold text-[#DC2626] mb-1">{s.value}</div>
+              <div className="text-xs text-gray-500">{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function InventoryGrid() {
+function BrowseByType() {
   return (
-    <section id="inventory" className="py-20 bg-[#0D0D0D]">
+    <section className="py-14 bg-[#080808]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-10">
-          <div><p className="text-[#C41E3A] text-sm mb-2 uppercase tracking-widest">Featured Stock</p><h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">Live Inventory</h2></div>
+        <div className="mb-8"><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Browse</p><h2 className="font-serif text-2xl font-bold text-white">By Vehicle Type</h2></div>
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+          {BODY_TYPES.map(t => (
+            <button key={t.label} className="flex flex-col items-center gap-2 bg-[#0F0F0F] hover:bg-[#161616] border border-[#1E1E1E] hover:border-[#DC2626]/40 rounded-xl p-4 transition-all group">
+              <span className="text-2xl">{t.icon}</span>
+              <span className="text-xs text-gray-400 group-hover:text-white font-medium">{t.label}</span>
+              <span className="text-[10px] text-gray-600">{t.count}</span>
+            </button>
+          ))}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {VEHICLES.map((v,i)=>(
-            <div key={i} className="bg-[#141414] border border-[#2A2A2A] rounded-xl overflow-hidden hover:border-[#C41E3A]/40 transition-colors">
-              <div className="relative h-48 bg-[#1A1A1A] flex items-center justify-center">
-                <Car size={64} className="text-[#2A2A2A]"/>
-                {v.eligible&&<span className="absolute top-3 left-3 bg-emerald-900/60 border border-emerald-700/50 text-emerald-400 text-[10px] font-medium px-2 py-0.5 rounded-full">Floor Plan Eligible</span>}
+      </div>
+    </section>
+  );
+}
+
+function Card({ v }: { v: typeof LISTINGS[0] }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <div className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-2xl overflow-hidden hover:border-[#2A2A2A] transition-all">
+      <div className="relative h-48" style={{ background: `linear-gradient(135deg, ${v.bg} 0%, #0a0a0a 100%)` }}>
+        <div className="absolute inset-0 flex items-center justify-center"><Car size={72} className="text-white/10"/></div>
+        {v.badge && <div className="absolute top-3 left-3 bg-[#DC2626] text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">{v.badge}</div>}
+        {v.verified && <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 text-emerald-400 text-[10px] px-2 py-1 rounded-md border border-emerald-900/50"><CheckCircle size={10}/> Verified</div>}
+        <button onClick={() => setSaved(!saved)} className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${saved?"bg-[#DC2626] text-white":"bg-black/40 text-gray-400 hover:text-white"}`}>
+          <Heart size={14} fill={saved?"currentColor":"none"}/>
+        </button>
+      </div>
+      <div className="p-4">
+        <div className="mb-3"><p className="text-gray-500 text-xs mb-0.5">{v.year} · {v.dealer}</p><h3 className="font-serif font-bold text-white text-base leading-tight">{v.make} {v.model}</h3></div>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {[{icon:Gauge,val:v.km+" km"},{icon:Fuel,val:v.fuel},{icon:Car,val:v.trans}].map(({icon:Icon,val}) => (
+            <div key={val} className="flex items-center gap-1.5 text-gray-500 text-xs"><Icon size={11} className="text-gray-600 flex-shrink-0"/><span className="truncate">{val}</span></div>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-4"><MapPin size={11} className="text-gray-600"/><span className="truncate">{v.location}</span></div>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-bold text-[#DC2626] text-lg">{fmt(v.price)}</div>
+            <div className="text-[10px] text-gray-600">Finance from ~R{Math.round(v.price*0.025).toLocaleString()}/pm</div>
+          </div>
+          <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">View</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Listings() {
+  return (
+    <section className="py-14 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Browse</p><h2 className="font-serif text-2xl font-bold text-white">487 Vehicles Available</h2></div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 border border-[#2A2A2A] hover:border-[#444] text-gray-400 hover:text-white text-sm px-3 py-2 rounded-xl transition-colors"><SlidersHorizontal size={14}/> Filters</button>
+            <div className="relative">
+              <select className="bg-[#0F0F0F] border border-[#2A2A2A] text-gray-300 text-sm rounded-xl px-3 py-2 pr-8 appearance-none focus:outline-none focus:border-[#DC2626]">
+                <option>Newest First</option><option>Price: Low → High</option><option>Price: High → Low</option><option>Lowest Mileage</option>
+              </select>
+              <ChevronDown size={13} className="absolute right-3 top-3 text-gray-600 pointer-events-none"/>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {LISTINGS.map(v => <Card key={v.id} v={v}/>)}
+        </div>
+        <div className="text-center mt-10">
+          <button className="border border-[#2A2A2A] hover:border-white text-gray-300 hover:text-white text-sm font-medium px-10 py-3.5 rounded-xl transition-colors">Load more listings</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Dealers() {
+  return (
+    <section className="py-14 bg-[#080808] border-y border-[#1E1E1E]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8"><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Our Network</p><h2 className="font-serif text-2xl font-bold text-white">Featured Dealers</h2></div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {DEALERS.map(d => (
+            <div key={d.id} className="bg-[#0A0A0A] border border-[#1E1E1E] hover:border-[#2A2A2A] rounded-2xl p-5 transition-colors">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-10 h-10 rounded-full bg-[#DC2626]/10 border border-[#DC2626]/20 flex items-center justify-center"><div className="w-2 h-2 bg-[#DC2626] rounded-sm"/></div>
+                <span className="text-xs text-emerald-400 bg-emerald-900/20 border border-emerald-900/40 px-2 py-0.5 rounded-full">Verified</span>
               </div>
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-1">
-                  <div><h3 className="font-serif text-white font-bold text-lg">{v.make} {v.model}</h3><p className="text-gray-500 text-xs">{v.year}</p></div>
-                  <span className="text-[#C41E3A] font-bold text-base">{v.price}</span>
-                </div>
-                <div className="flex items-center gap-1 text-gray-500 text-xs mb-4"><MapPin size={11}/><span>{v.location}</span></div>
-                <button className="w-full border border-[#2A2A2A] hover:border-white/40 text-gray-300 hover:text-white text-sm py-2 rounded-lg transition-colors">View Details</button>
+              <h3 className="font-serif font-bold text-white mb-1">{d.name}</h3>
+              <p className="text-xs text-gray-500 flex items-center gap-1 mb-4"><MapPin size={10}/>{d.location}</p>
+              <div className="flex items-center justify-between text-xs text-gray-400 border-t border-[#1E1E1E] pt-4">
+                <span>{d.units} vehicles</span><span className="text-amber-400">★ {d.rating} ({d.reviews})</span>
               </div>
             </div>
           ))}
         </div>
-        <div className="text-center mt-10"><a href="#" className="inline-flex items-center gap-2 bg-[#C41E3A] hover:bg-[#a01830] text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">View All 487 Listings <ArrowRight size={15}/></a></div>
       </div>
     </section>
   );
 }
 
-function TrustBar() {
+function Finance() {
   return (
-    <section className="py-10 bg-[#141414] border-y border-[#2A2A2A]">
+    <section className="py-14 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
-          {TRUST.map(({icon:Icon,label})=><div key={label} className="flex items-center gap-2.5 text-gray-400"><Icon size={16} className="text-[#C41E3A]"/><span className="text-sm whitespace-nowrap">{label}</span></div>)}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FranchiseSection() {
-  return (
-    <section id="franchise" className="py-24 bg-[#0A0A0A]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="text-[#C41E3A] text-sm mb-3 uppercase tracking-widest">Franchise Opportunity</p>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-4">Own a Tuta Cars Franchise</h2>
-          <p className="text-gray-400 max-w-xl mx-auto">Join an established network of 12 operational dealer pods. Exclusive territory. Full ERP stack. Finance-ready from Month 6.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-          {FRANCHISE_CARDS.map(c=><div key={c.label} className="bg-[#141414] border border-[#2A2A2A] rounded-xl p-6 text-center hover:border-[#C41E3A]/40 transition-colors"><div className="font-serif text-4xl font-bold text-[#C41E3A] mb-1">{c.amount}</div><div className="text-gray-500 text-xs mb-3">{c.period}</div><div className="text-white font-medium mb-2 font-serif">{c.label}</div><div className="text-gray-400 text-sm">{c.desc}</div></div>)}
-        </div>
-        <div className="flex flex-col lg:flex-row gap-10 items-center lg:items-start">
-          <div className="flex-1"><h3 className="font-serif text-xl font-bold text-white mb-5">What's included</h3><ul className="space-y-3">{BENEFITS.map(b=><li key={b} className="flex items-center gap-3 text-gray-300 text-sm"><CheckCircle size={16} className="text-[#C41E3A] flex-shrink-0"/>{b}</li>)}</ul></div>
-          <div className="lg:w-64 text-center lg:text-left">
-            <p className="text-gray-400 text-sm mb-6">Applications reviewed within 5 business days. Limited territories available in Gauteng and Western Cape.</p>
-            <a href="mailto:franchises@tutacars.co.za" className="block bg-[#C41E3A] hover:bg-[#a01830] text-white font-medium px-8 py-3.5 rounded-lg transition-colors text-center">Apply for a Franchise</a>
+        <div className="bg-gradient-to-r from-[#0F0F0F] to-[#141414] border border-[#2A2A2A] rounded-2xl p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div>
+            <p className="text-[#DC2626] text-xs uppercase tracking-widest mb-3">Tuta Capital</p>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white mb-3">Get pre-approved in minutes</h2>
+            <p className="text-gray-400 max-w-lg">Finance options available on most vehicles. Competitive rates, flexible terms. Tuta Capital makes vehicle ownership accessible to all South Africans.</p>
+          </div>
+          <div className="flex-shrink-0 flex flex-col gap-3">
+            <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors whitespace-nowrap">Apply for Finance</button>
+            <button className="border border-[#2A2A2A] hover:border-white text-gray-300 hover:text-white text-sm px-8 py-3 rounded-xl transition-colors whitespace-nowrap text-center">Calculate Repayment</button>
           </div>
         </div>
       </div>
@@ -160,29 +246,50 @@ function FranchiseSection() {
   );
 }
 
-function HowItWorks() {
+function Partner() {
+  const [done, setDone] = useState(false);
+  const [f, setF] = useState({ name:"", email:"", phone:"", province:"", type:"individual" });
   return (
-    <section className="py-24 bg-[#0D0D0D]">
+    <section id="partner" className="py-16 bg-[#0A0A0A] border-t border-[#1E1E1E]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14"><p className="text-[#C41E3A] text-sm mb-3 uppercase tracking-widest">The Process</p><h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">How It Works</h2></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {STEPS.map((s,i)=><div key={i} className="bg-[#141414] border border-[#2A2A2A] rounded-xl p-6"><div className="font-serif text-5xl font-bold text-[#2A2A2A] mb-4">{s.num}</div><h3 className="font-serif text-lg font-bold text-white mb-3">{s.title}</h3><p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p></div>)}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div>
+            <p className="text-[#DC2626] text-xs uppercase tracking-widest mb-3">Dealer Opportunity</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">Sell cars under the Tuta Cars brand</h2>
+            <p className="text-gray-400 mb-8 leading-relaxed">We're expanding our dealer network across South Africa. If you're looking to operate a professional, technology-backed dealership with access to floor plan finance and a national buyer base — we want to hear from you.</p>
+            <div className="space-y-4 mb-8">
+              {["Exclusive territory — one pod per area","Technology platform to manage your entire stock","Access to vehicle floor plan finance","Nationwide marketing and lead generation","RMI & NADA compliance support"].map(b => (
+                <div key={b} className="flex items-center gap-3"><CheckCircle size={16} className="text-[#DC2626] flex-shrink-0"/><span className="text-gray-300 text-sm">{b}</span></div>
+              ))}
+            </div>
+            <p className="text-gray-600 text-sm italic">Complete the form to receive our full dealer information pack, territory map, and fee structure.</p>
+          </div>
+          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-2xl p-6">
+            {done ? (
+              <div className="text-center py-10">
+                <CheckCircle size={48} className="text-[#DC2626] mx-auto mb-4"/>
+                <h3 className="font-serif text-xl font-bold text-white mb-2">Interest Registered!</h3>
+                <p className="text-gray-400 text-sm">We'll send our full dealer pack to {f.email} within 1 business day.</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="font-serif text-lg font-bold text-white mb-1">Register Your Interest</h3>
+                <p className="text-gray-500 text-sm mb-6">Takes 60 seconds. No commitment required.</p>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div><label className="text-xs text-gray-500 mb-1 block">Full Name</label><input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Your name" className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
+                    <div><label className="text-xs text-gray-500 mb-1 block">Phone</label><input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})} placeholder="+27 ..." className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
+                  </div>
+                  <div><label className="text-xs text-gray-500 mb-1 block">Email Address</label><input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@example.com" className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
+                  <div><label className="text-xs text-gray-500 mb-1 block">Preferred Territory</label><div className="relative"><select value={f.province} onChange={e=>setF({...f,province:e.target.value})} className="w-full bg-[#050505] border border-[#2A2A2A] text-gray-300 text-sm rounded-xl px-3 py-2.5 appearance-none focus:border-[#DC2626] focus:outline-none"><option value="">Select province</option>{PROVINCES.slice(1).map(p=><option key={p}>{p}</option>)}</select><ChevronDown size={13} className="absolute right-3 top-3 text-gray-600 pointer-events-none"/></div></div>
+                  <div><label className="text-xs text-gray-500 mb-2 block">I am interested as a</label><div className="flex gap-3">{["individual","existing dealer","investor"].map(t=><button key={t} onClick={()=>setF({...f,type:t})} className={`flex-1 text-xs py-2 rounded-lg border transition-colors capitalize ${f.type===t?"bg-[#DC2626]/10 border-[#DC2626]/40 text-white":"border-[#2A2A2A] text-gray-500 hover:border-[#444]"}`}>{t}</button>)}</div></div>
+                  <button onClick={()=>f.name&&f.email&&setDone(true)} className="w-full bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">Send Me the Dealer Pack <ArrowRight size={15}/></button>
+                  <p className="text-center text-gray-600 text-[11px]">We respond within 1 business day. Your details are never shared.</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function TutaCapitalStrip() {
-  return (
-    <section className="py-16 bg-[#8B0000]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-8">
-        <div>
-          <p className="text-red-300 text-sm uppercase tracking-widest mb-2">Finance Arm</p>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white mb-3">Finance Your Floor Plan with Tuta Capital</h2>
-          <p className="text-red-200 max-w-xl">NCR-registered floor plan credit facility exclusively for Tuta Cars dealer pods. Unlock up to R500,000 at the Month 6 milestone.</p>
-        </div>
-        <a href="https://capital.tutacars.co.za" className="flex-shrink-0 inline-flex items-center gap-2 bg-white text-[#8B0000] font-medium px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">Visit capital.tutacars.co.za <ExternalLink size={15}/></a>
       </div>
     </section>
   );
@@ -190,20 +297,24 @@ function TutaCapitalStrip() {
 
 function Footer() {
   return (
-    <footer className="bg-[#0A0A0A] border-t border-[#2A2A2A]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          <div><div className="flex items-center gap-2 mb-4"><div className="w-3 h-3 bg-[#C41E3A] rounded-sm"/><span className="font-serif text-lg font-bold text-white">TUTA CARS</span></div><p className="text-gray-500 text-sm mb-3">Built on Proven Principles.</p><p className="text-gray-600 text-xs">A Luvium Holdings Company</p></div>
-          <div><h4 className="font-serif text-white font-bold mb-4">Quick Links</h4><ul className="space-y-2">{["Home","Inventory","Become a Dealer","About","Contact"].map(l=><li key={l}><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">{l}</a></li>)}</ul></div>
-          <div><h4 className="font-serif text-white font-bold mb-4">Territories</h4><ul className="space-y-2">{["Gauteng North","Gauteng South","Western Cape","KwaZulu-Natal","Eastern Cape"].map(t=><li key={t} className="text-gray-400 text-sm">{t}</li>)}<li className="text-[#C41E3A] text-sm">+ 49 more</li></ul></div>
-          <div><h4 className="font-serif text-white font-bold mb-4">Contact</h4><ul className="space-y-3"><li className="flex items-center gap-2 text-gray-400 text-sm"><Mail size={13} className="text-[#C41E3A]"/>info@tutacars.co.za</li><li className="flex items-center gap-2 text-gray-400 text-sm"><Phone size={13} className="text-[#C41E3A]"/>+27 (0)11 000 0000</li><li className="flex items-start gap-2 text-gray-400 text-sm"><MapPin size={13} className="text-[#C41E3A] mt-0.5 flex-shrink-0"/>Sandton, Johannesburg</li></ul></div>
+    <footer className="bg-[#030303] border-t border-[#111]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+          <div><div className="flex items-center gap-2 mb-4"><div className="w-3 h-3 bg-[#DC2626] rounded-sm"/><span className="font-serif text-lg font-bold text-white">TUTA CARS</span></div><p className="text-gray-600 text-sm mb-3">South Africa's verified dealer network. 487 listings. 12 trusted dealers. Nationwide.</p><p className="text-gray-700 text-xs">A Luvium Holdings Company</p></div>
+          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Buy</h4><ul className="space-y-2">{["Browse All Cars","Bakkies & Trucks","SUVs","Luxury Cars","Under R200k","Under R300k"].map(l=><li key={l}><a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">{l}</a></li>)}</ul></div>
+          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Services</h4><ul className="space-y-2">{["Vehicle Finance","Trade-In Valuation","Dealer Portal","Become a Partner","About Tuta Cars"].map(l=><li key={l}><a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">{l}</a></li>)}</ul></div>
+          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Contact</h4><ul className="space-y-3"><li className="flex items-center gap-2 text-gray-500 text-sm"><Mail size={13} className="text-[#DC2626]"/>info@tutacars.co.za</li><li className="flex items-center gap-2 text-gray-500 text-sm"><Phone size={13} className="text-[#DC2626]"/>+27 (0)11 000 0000</li><li className="flex items-center gap-2 text-gray-500 text-sm"><MapPin size={13} className="text-[#DC2626]"/>Sandton, Johannesburg</li></ul></div>
         </div>
-        <div className="border-t border-[#2A2A2A] pt-8"><p className="text-gray-600 text-xs text-center">© 2025 Tuta Cars, a Luvium Holdings Company. RMI Member. NCR Registration Pending. All transactions subject to the National Credit Act 34 of 2005.</p></div>
+        <div className="border-t border-[#111] pt-8"><p className="text-gray-700 text-xs text-center">© 2025 Tuta Cars, a Luvium Holdings Company. RMI Member. NCR Registration Pending. All transactions subject to the National Credit Act 34 of 2005.</p></div>
       </div>
     </footer>
   );
 }
 
 export default function Home() {
-  return <main><Navbar/><Hero/><InventoryGrid/><TrustBar/><FranchiseSection/><HowItWorks/><TutaCapitalStrip/><Footer/></main>;
-}
+  return (
+    <main className="bg-[#050505] min-h-screen">
+      <Navbar/><Hero/><BrowseByType/><Listings/><Dealers/><Finance/><Partner/><Footer/>
+    </main>
+  );
+        }
