@@ -1,6 +1,18 @@
 "use client";
-import { useState } from "react";
-import { Search, MapPin, ChevronDown, ArrowRight, Heart, Phone, Mail, Menu, X, SlidersHorizontal, Car, Fuel, Gauge, CheckCircle, ExternalLink } from "lucide-react";
+import { useState, createContext, useContext } from "react";
+import {
+  Search, MapPin, ChevronDown, ArrowRight, Heart, Phone, Mail,
+  Menu, X, SlidersHorizontal, Car, Fuel, Gauge, CheckCircle,
+  ExternalLink, Sun, Moon,
+} from "lucide-react";
+
+const GOLD = "#D4AF37";
+const GOLD_LIGHT = "#F0D060";
+const RED = "#DC2626";
+const RED_DARK = "#b91c1c";
+
+const ThemeCtx = createContext(true);
+function useDark() { return useContext(ThemeCtx); }
 
 const BODY_TYPES = [
   { label: "Bakkie", icon: "🛻", count: 124 },
@@ -37,36 +49,99 @@ const DEALERS = [
 
 function fmt(n: number) { return "R " + n.toLocaleString("en-ZA"); }
 
-function Navbar() {
-  const [open, setOpen] = useState(false);
+function LogoMark({ size = 28 }: { size?: number }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur border-b border-[#1E1E1E]">
+    <div style={{ width: size, height: size, background: RED, borderRadius: 5,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      boxShadow: `0 0 0 1px rgba(220,38,38,0.4), 0 2px 8px rgba(220,38,38,0.3)`,
+      flexShrink: 0 }}>
+      <span style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: "white",
+        fontSize: size * 0.55, lineHeight: 1 }}>T</span>
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p style={{ color: GOLD, fontSize: 11, fontWeight: 600, letterSpacing: "0.15em",
+      textTransform: "uppercase", marginBottom: 8 }}>{children}</p>
+  );
+}
+
+function Navbar({ onToggle }: { onToggle: () => void }) {
+  const dark = useDark();
+  const [open, setOpen] = useState(false);
+  const navBg = dark ? "rgba(5,5,5,0.96)" : "rgba(250,248,244,0.96)";
+  const navBorder = dark ? "#1E1E1E" : "#E0D8CC";
+  const textColor = dark ? "#9CA3AF" : "#6B7280";
+  const textHover = dark ? "#FFFFFF" : "#1A1A1A";
+
+  return (
+    <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+      background: navBg, borderBottom: `1px solid ${navBorder}`, backdropFilter: "blur(12px)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-3 h-3 bg-[#DC2626] rounded-sm"/>
-              <span className="font-serif text-xl font-bold text-white tracking-tight">TUTA CARS</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+              <LogoMark size={28} />
+              <span style={{ fontFamily: "Georgia, serif", fontSize: 18, fontWeight: 700,
+                color: dark ? "#FFFFFF" : "#1A1A1A", letterSpacing: "0.04em" }}>TUTA CARS</span>
             </div>
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex" style={{ gap: 2 }}>
               {["Buy","Sell","Finance","Dealers","About"].map(l => (
-                <a key={l} href="#" className="px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md hover:bg-white/5 transition-colors">{l}</a>
+                <a key={l} href="#"
+                  style={{ padding: "6px 12px", fontSize: 14, color: textColor, borderRadius: 6, transition: "color 0.15s", textDecoration: "none" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = textHover)}
+                  onMouseLeave={e => (e.currentTarget.style.color = textColor)}
+                >{l}</a>
               ))}
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-3">
-            <a href="https://capital.tutacars.co.za" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-[#2A2A2A] hover:border-[#444] px-3 py-1.5 rounded-lg transition-colors">
-              <ExternalLink size={12}/> Dealer Portal
-            </a>
-            <a href="#partner" className="bg-[#DC2626] hover:bg-[#b91c1c] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">List Your Car</a>
+          <div className="hidden md:flex" style={{ alignItems: "center", gap: 12 }}>
+            <button onClick={onToggle}
+              style={{ width: 36, height: 36, borderRadius: 8,
+                border: `1px solid ${dark ? "#2A2A2A" : "#D0C9BE"}`,
+                background: "transparent", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: textColor, transition: "all 0.2s" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = textHover; (e.currentTarget as HTMLButtonElement).style.borderColor = GOLD; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = textColor; (e.currentTarget as HTMLButtonElement).style.borderColor = dark ? "#2A2A2A" : "#D0C9BE"; }}
+            >
+              {dark ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+            <a href="https://capital.tutacars.co.za"
+              style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: textColor,
+                border: `1px solid ${dark ? "#2A2A2A" : "#D0C9BE"}`, padding: "6px 12px",
+                borderRadius: 8, textDecoration: "none", transition: "all 0.15s" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = textHover; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = textColor; }}
+            ><ExternalLink size={12} /> Dealer Portal</a>
+            <a href="#partner"
+              style={{ background: RED, color: "white", fontSize: 14, fontWeight: 500,
+                padding: "8px 16px", borderRadius: 8, textDecoration: "none", transition: "background 0.15s" }}
+              onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = RED_DARK)}
+              onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = RED)}
+            >List Your Car</a>
           </div>
-          <button className="md:hidden text-white" onClick={() => setOpen(!open)}>{open ? <X size={22}/> : <Menu size={22}/>}</button>
+          <div className="flex md:hidden" style={{ alignItems: "center", gap: 8 }}>
+            <button onClick={onToggle} style={{ color: textColor, background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button onClick={() => setOpen(!open)} style={{ color: dark ? "white" : "#1A1A1A", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+              {open ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </div>
       {open && (
-        <div className="md:hidden bg-[#0A0A0A] border-t border-[#1E1E1E] px-4 py-4 space-y-2">
-          {["Buy","Sell","Finance","Dealers","About"].map(l => <a key={l} href="#" className="block text-sm text-gray-300 hover:text-white py-2">{l}</a>)}
-          <a href="#partner" className="block bg-[#DC2626] text-white text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-2">List Your Car</a>
+        <div style={{ background: dark ? "#0A0A0A" : "#FAFAF7", borderTop: `1px solid ${navBorder}`, padding: "16px" }}>
+          {["Buy","Sell","Finance","Dealers","About"].map(l => (
+            <a key={l} href="#" style={{ display: "block", fontSize: 14, color: textColor, padding: "8px 0", textDecoration: "none" }}>{l}</a>
+          ))}
+          <a href="#partner" style={{ display: "block", background: RED, color: "white", fontSize: 14,
+            fontWeight: 500, padding: "10px 16px", borderRadius: 8, textAlign: "center", marginTop: 8, textDecoration: "none" }}>
+            List Your Car
+          </a>
         </div>
       )}
     </nav>
@@ -74,47 +149,77 @@ function Navbar() {
 }
 
 function Hero() {
+  const dark = useDark();
   const [active, setActive] = useState("All");
   const cats = ["All","Bakkie","SUV","Sedan","Hatchback","Luxury"];
+  const sectionBg = dark ? "#050505" : "#F5F3EE";
+  const cardBg = dark ? "#0F0F0F" : "#FFFFFF";
+  const borderCol = dark ? "#2A2A2A" : "#D8D0C4";
+  const inputBg = dark ? "#050505" : "#F9F7F4";
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+
   return (
-    <section className="pt-16 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 bg-[#DC2626]/10 border border-[#DC2626]/20 rounded-full px-3 py-1 mb-6">
-            <div className="w-1.5 h-1.5 bg-[#DC2626] rounded-full animate-pulse"/>
-            <span className="text-xs text-[#DC2626] font-medium">487 vehicles available nationwide</span>
+    <section style={{ paddingTop: 64, background: sectionBg }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 24px" }}>
+        <div style={{ maxWidth: 780 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8,
+            background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)",
+            borderRadius: 999, padding: "4px 12px", marginBottom: 24 }}>
+            <div style={{ width: 6, height: 6, background: GOLD, borderRadius: "50%" }} />
+            <span style={{ fontSize: 12, color: GOLD, fontWeight: 500 }}>487 vehicles available nationwide</span>
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-5">
-            Find your next<br/><span className="text-[#DC2626]">car with confidence</span>
+          <h1 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
+            fontWeight: 700, color: textMain, lineHeight: 1.1, marginBottom: 20 }}>
+            Find your next<br />
+            <span style={{ color: RED }}>car with confidence</span>
           </h1>
-          <p className="text-gray-400 text-lg mb-10 max-w-xl">Verified dealers. Transparent pricing. Finance options on most vehicles. 487 listings from 12 trusted dealer pods nationwide.</p>
-          <div className="flex gap-2 flex-wrap mb-6">
-            {cats.map(c => (
-              <button key={c} onClick={() => setActive(c)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active===c?"bg-[#DC2626] text-white":"bg-[#111] border border-[#2A2A2A] text-gray-400 hover:text-white hover:border-[#444]"}`}>{c}</button>
+          <p style={{ color: textMuted, fontSize: 18, marginBottom: 36, maxWidth: 520 }}>
+            Verified dealers. Transparent pricing. Finance options on most vehicles.
+            487 listings from 12 trusted dealer pods nationwide.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+            {cats.map(cat => (
+              <button key={cat} onClick={() => setActive(cat)}
+                style={{ padding: "8px 18px", borderRadius: 999, fontSize: 14, fontWeight: 500,
+                  cursor: "pointer", transition: "all 0.15s",
+                  background: active === cat ? RED : (dark ? "#111111" : "#FFFFFF"),
+                  color: active === cat ? "white" : textMuted,
+                  border: active === cat ? `1px solid ${RED}` : `1px solid ${borderCol}` }}
+              >{cat}</button>
             ))}
           </div>
-          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-2xl p-3 flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {[{label:"Make",opts:MAKES},{label:"Max Price",opts:PRICE_RANGES},{label:"Province",opts:PROVINCES}].map(({label,opts}) => (
-                <div key={label} className="relative">
-                  <select className="w-full bg-[#050505] border border-[#1E1E1E] text-gray-300 text-sm rounded-xl px-3 py-3 appearance-none focus:border-[#DC2626] focus:outline-none cursor-pointer">
+          <div style={{ background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 16,
+            padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              {[{ label: "Make", opts: MAKES }, { label: "Max Price", opts: PRICE_RANGES }, { label: "Province", opts: PROVINCES }].map(({ label, opts }) => (
+                <div key={label} style={{ position: "relative" }}>
+                  <select style={{ width: "100%", background: inputBg, border: `1px solid ${borderCol}`,
+                    color: dark ? "#D1D5DB" : "#374151", fontSize: 14, borderRadius: 10,
+                    padding: "10px 12px", appearance: "none", cursor: "pointer" }}>
                     {opts.map(o => <option key={o}>{o}</option>)}
                   </select>
-                  <ChevronDown size={13} className="absolute right-3 top-3.5 text-gray-600 pointer-events-none"/>
+                  <ChevronDown size={13} style={{ position: "absolute", right: 10, top: 13, color: textMuted, pointerEvents: "none" }} />
                 </div>
               ))}
             </div>
-            <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold px-8 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 flex-shrink-0">
-              <Search size={16}/> Search
-            </button>
+            <button
+              style={{ background: RED, color: "white", fontWeight: 600, padding: "12px 32px",
+                borderRadius: 10, border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontSize: 15, transition: "background 0.15s" }}
+              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = RED_DARK)}
+              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = RED)}
+            ><Search size={16} /> Search</button>
           </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-14">
-          {[{value:"487",label:"Live Listings"},{value:"12",label:"Verified Dealers"},{value:"9",label:"Provinces"},{value:"100%",label:"Verified Stock"}].map(s => (
-            <div key={s.label} className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-xl p-4">
-              <div className="font-serif text-2xl font-bold text-[#DC2626] mb-1">{s.value}</div>
-              <div className="text-xs text-gray-500">{s.label}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginTop: 56 }}>
+          {[{ value: "487", label: "Live Listings" }, { value: "12", label: "Verified Dealers" },
+            { value: "9", label: "Provinces" }, { value: "100%", label: "Verified Stock" }].map(s => (
+            <div key={s.label} style={{ background: dark ? "#0A0A0A" : "#FFFFFF",
+              border: `1px solid ${dark ? "#1E1E1E" : "#E0D8CC"}`, borderRadius: 12, padding: "16px 20px" }}>
+              <div style={{ fontFamily: "Georgia, serif", fontSize: 26, fontWeight: 700, color: GOLD, marginBottom: 4 }}>{s.value}</div>
+              <div style={{ fontSize: 12, color: textMuted }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -124,16 +229,31 @@ function Hero() {
 }
 
 function BrowseByType() {
+  const dark = useDark();
+  const sectionBg = dark ? "#080808" : "#EDE9E1";
+  const cardBg = dark ? "#0F0F0F" : "#FFFFFF";
+  const borderCol = dark ? "#1E1E1E" : "#D8D0C4";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+
   return (
-    <section className="py-14 bg-[#080808]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8"><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Browse</p><h2 className="font-serif text-2xl font-bold text-white">By Vehicle Type</h2></div>
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+    <section style={{ padding: "56px 0", background: sectionBg }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ marginBottom: 32 }}>
+          <SectionLabel>Browse</SectionLabel>
+          <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, fontWeight: 700, color: dark ? "#FFFFFF" : "#1A1A1A" }}>By Vehicle Type</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           {BODY_TYPES.map(t => (
-            <button key={t.label} className="flex flex-col items-center gap-2 bg-[#0F0F0F] hover:bg-[#161616] border border-[#1E1E1E] hover:border-[#DC2626]/40 rounded-xl p-4 transition-all group">
-              <span className="text-2xl">{t.icon}</span>
-              <span className="text-xs text-gray-400 group-hover:text-white font-medium">{t.label}</span>
-              <span className="text-[10px] text-gray-600">{t.count}</span>
+            <button key={t.label}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 12,
+                padding: 16, cursor: "pointer", transition: "all 0.2s" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = GOLD; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = borderCol; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+            >
+              <span style={{ fontSize: 22 }}>{t.icon}</span>
+              <span style={{ fontSize: 11, color: textMuted, fontWeight: 500 }}>{t.label}</span>
+              <span style={{ fontSize: 10, color: dark ? "#4B5563" : "#9CA3AF" }}>{t.count}</span>
             </button>
           ))}
         </div>
@@ -143,31 +263,71 @@ function BrowseByType() {
 }
 
 function Card({ v }: { v: typeof LISTINGS[0] }) {
+  const dark = useDark();
   const [saved, setSaved] = useState(false);
+  const cardBg = dark ? "#0A0A0A" : "#FFFFFF";
+  const borderCol = dark ? "#1E1E1E" : "#E0D8CC";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+  const textDim = dark ? "#4B5563" : "#9CA3AF";
+
   return (
-    <div className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-2xl overflow-hidden hover:border-[#2A2A2A] transition-all">
-      <div className="relative h-48" style={{ background: `linear-gradient(135deg, ${v.bg} 0%, #0a0a0a 100%)` }}>
-        <div className="absolute inset-0 flex items-center justify-center"><Car size={72} className="text-white/10"/></div>
-        {v.badge && <div className="absolute top-3 left-3 bg-[#DC2626] text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">{v.badge}</div>}
-        {v.verified && <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 text-emerald-400 text-[10px] px-2 py-1 rounded-md border border-emerald-900/50"><CheckCircle size={10}/> Verified</div>}
-        <button onClick={() => setSaved(!saved)} className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${saved?"bg-[#DC2626] text-white":"bg-black/40 text-gray-400 hover:text-white"}`}>
-          <Heart size={14} fill={saved?"currentColor":"none"}/>
+    <div style={{ background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 16,
+      overflow: "hidden", transition: "border-color 0.2s" }}
+      onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.borderColor = dark ? "#2A2A2A" : "#C9BFA8")}
+      onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.borderColor = borderCol)}>
+      <div style={{ position: "relative", height: 192,
+        background: `linear-gradient(135deg, ${v.bg} 0%, #0a0a0a 100%)` }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Car size={72} style={{ color: "rgba(255,255,255,0.08)" }} />
+        </div>
+        {v.badge && (
+          <div style={{ position: "absolute", top: 12, left: 12, background: RED, color: "white",
+            fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
+            letterSpacing: "0.06em", textTransform: "uppercase" }}>{v.badge}</div>
+        )}
+        {v.verified && (
+          <div style={{ position: "absolute", bottom: 12, left: 12, display: "flex", alignItems: "center",
+            gap: 4, background: "rgba(0,0,0,0.6)", color: "#34D399", fontSize: 10,
+            padding: "4px 8px", borderRadius: 6, border: "1px solid rgba(52,211,153,0.2)" }}>
+            <CheckCircle size={10} /> Verified
+          </div>
+        )}
+        <button onClick={() => setSaved(!saved)}
+          style={{ position: "absolute", top: 12, right: 12, width: 32, height: 32, borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: saved ? RED : "rgba(0,0,0,0.4)", color: saved ? "white" : "#9CA3AF",
+            border: "none", cursor: "pointer", backdropFilter: "blur(4px)" }}>
+          <Heart size={14} fill={saved ? "currentColor" : "none"} />
         </button>
       </div>
-      <div className="p-4">
-        <div className="mb-3"><p className="text-gray-500 text-xs mb-0.5">{v.year} · {v.dealer}</p><h3 className="font-serif font-bold text-white text-base leading-tight">{v.make} {v.model}</h3></div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {[{icon:Gauge,val:v.km+" km"},{icon:Fuel,val:v.fuel},{icon:Car,val:v.trans}].map(({icon:Icon,val}) => (
-            <div key={val} className="flex items-center gap-1.5 text-gray-500 text-xs"><Icon size={11} className="text-gray-600 flex-shrink-0"/><span className="truncate">{val}</span></div>
+      <div style={{ padding: 16 }}>
+        <div style={{ marginBottom: 12 }}>
+          <p style={{ fontSize: 11, color: textDim, marginBottom: 2 }}>{v.year} · {v.dealer}</p>
+          <h3 style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: dark ? "#FFFFFF" : "#1A1A1A",
+            fontSize: 15, lineHeight: 1.3 }}>{v.make} {v.model}</h3>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 12 }}>
+          {[{ Icon: Gauge, val: v.km + " km" }, { Icon: Fuel, val: v.fuel }, { Icon: Car, val: v.trans }].map(({ Icon, val }) => (
+            <div key={val} style={{ display: "flex", alignItems: "center", gap: 5, color: textMuted, fontSize: 11 }}>
+              <Icon size={11} style={{ color: textDim, flexShrink: 0 }} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{val}</span>
+            </div>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-4"><MapPin size={11} className="text-gray-600"/><span className="truncate">{v.location}</span></div>
-        <div className="flex items-center justify-between">
+        <div style={{ display: "flex", alignItems: "center", gap: 5, color: textMuted, fontSize: 11, marginBottom: 16 }}>
+          <MapPin size={11} style={{ color: textDim }} />
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.location}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div className="font-bold text-[#DC2626] text-lg">{fmt(v.price)}</div>
-            <div className="text-[10px] text-gray-600">Finance from ~R{Math.round(v.price*0.025).toLocaleString()}/pm</div>
+            <div style={{ fontWeight: 700, color: RED, fontSize: 18 }}>{fmt(v.price)}</div>
+            <div style={{ fontSize: 10, color: GOLD }}>Finance from ~R{Math.round(v.price * 0.025).toLocaleString()}/pm</div>
           </div>
-          <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">View</button>
+          <button style={{ background: RED, color: "white", fontSize: 12, fontWeight: 600,
+            padding: "8px 16px", borderRadius: 8, border: "none", cursor: "pointer", transition: "background 0.15s" }}
+            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = RED_DARK)}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = RED)}
+          >View</button>
         </div>
       </div>
     </div>
@@ -175,26 +335,48 @@ function Card({ v }: { v: typeof LISTINGS[0] }) {
 }
 
 function Listings() {
+  const dark = useDark();
+  const sectionBg = dark ? "#050505" : "#F5F3EE";
+  const borderCol = dark ? "#2A2A2A" : "#D8D0C4";
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+  const inputBg = dark ? "#0F0F0F" : "#FFFFFF";
+
   return (
-    <section className="py-14 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Browse</p><h2 className="font-serif text-2xl font-bold text-white">487 Vehicles Available</h2></div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 border border-[#2A2A2A] hover:border-[#444] text-gray-400 hover:text-white text-sm px-3 py-2 rounded-xl transition-colors"><SlidersHorizontal size={14}/> Filters</button>
-            <div className="relative">
-              <select className="bg-[#0F0F0F] border border-[#2A2A2A] text-gray-300 text-sm rounded-xl px-3 py-2 pr-8 appearance-none focus:outline-none focus:border-[#DC2626]">
-                <option>Newest First</option><option>Price: Low → High</option><option>Price: High → Low</option><option>Lowest Mileage</option>
+    <section style={{ padding: "56px 0", background: sectionBg }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: 16, marginBottom: 32 }}>
+          <div>
+            <SectionLabel>Browse</SectionLabel>
+            <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, fontWeight: 700, color: textMain }}>487 Vehicles Available</h2>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button style={{ display: "flex", alignItems: "center", gap: 8,
+              border: `1px solid ${borderCol}`, color: textMuted, fontSize: 14,
+              padding: "8px 14px", borderRadius: 10, background: "transparent", cursor: "pointer" }}
+            ><SlidersHorizontal size={14} /> Filters</button>
+            <div style={{ position: "relative" }}>
+              <select style={{ background: inputBg, border: `1px solid ${borderCol}`,
+                color: dark ? "#D1D5DB" : "#374151", fontSize: 14,
+                borderRadius: 10, padding: "8px 32px 8px 12px", appearance: "none" }}>
+                <option>Newest First</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Lowest Mileage</option>
               </select>
-              <ChevronDown size={13} className="absolute right-3 top-3 text-gray-600 pointer-events-none"/>
+              <ChevronDown size={13} style={{ position: "absolute", right: 10, top: 11, color: textMuted, pointerEvents: "none" }} />
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {LISTINGS.map(v => <Card key={v.id} v={v}/>)}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
+          {LISTINGS.map(v => <Card key={v.id} v={v} />)}
         </div>
-        <div className="text-center mt-10">
-          <button className="border border-[#2A2A2A] hover:border-white text-gray-300 hover:text-white text-sm font-medium px-10 py-3.5 rounded-xl transition-colors">Load more listings</button>
+        <div style={{ textAlign: "center", marginTop: 40 }}>
+          <button style={{ border: `1px solid ${borderCol}`, color: textMuted, fontSize: 14,
+            fontWeight: 500, padding: "14px 40px", borderRadius: 12,
+            background: "transparent", cursor: "pointer" }}
+          >Load more listings</button>
         </div>
       </div>
     </section>
@@ -202,21 +384,45 @@ function Listings() {
 }
 
 function Dealers() {
+  const dark = useDark();
+  const sectionBg = dark ? "#080808" : "#EDE9E1";
+  const cardBg = dark ? "#0A0A0A" : "#FFFFFF";
+  const borderCol = dark ? "#1E1E1E" : "#D8D0C4";
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#6B7280" : "#9CA3AF";
+
   return (
-    <section className="py-14 bg-[#080808] border-y border-[#1E1E1E]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8"><p className="text-[#DC2626] text-xs uppercase tracking-widest mb-2">Our Network</p><h2 className="font-serif text-2xl font-bold text-white">Featured Dealers</h2></div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <section style={{ padding: "56px 0", background: sectionBg,
+      borderTop: `1px solid ${borderCol}`, borderBottom: `1px solid ${borderCol}` }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ marginBottom: 32 }}>
+          <SectionLabel>Our Network</SectionLabel>
+          <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, fontWeight: 700, color: textMain }}>Featured Dealers</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
           {DEALERS.map(d => (
-            <div key={d.id} className="bg-[#0A0A0A] border border-[#1E1E1E] hover:border-[#2A2A2A] rounded-2xl p-5 transition-colors">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 rounded-full bg-[#DC2626]/10 border border-[#DC2626]/20 flex items-center justify-center"><div className="w-2 h-2 bg-[#DC2626] rounded-sm"/></div>
-                <span className="text-xs text-emerald-400 bg-emerald-900/20 border border-emerald-900/40 px-2 py-0.5 rounded-full">Verified</span>
+            <div key={d.id}
+              style={{ background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 16, padding: 20 }}
+              onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.borderColor = GOLD)}
+              onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.borderColor = borderCol)}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%",
+                  background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <LogoMark size={22} />
+                </div>
+                <span style={{ fontSize: 11, color: "#34D399", background: "rgba(52,211,153,0.1)",
+                  border: "1px solid rgba(52,211,153,0.25)", padding: "2px 8px", borderRadius: 999 }}>Verified</span>
               </div>
-              <h3 className="font-serif font-bold text-white mb-1">{d.name}</h3>
-              <p className="text-xs text-gray-500 flex items-center gap-1 mb-4"><MapPin size={10}/>{d.location}</p>
-              <div className="flex items-center justify-between text-xs text-gray-400 border-t border-[#1E1E1E] pt-4">
-                <span>{d.units} vehicles</span><span className="text-amber-400">★ {d.rating} ({d.reviews})</span>
+              <h3 style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: textMain, marginBottom: 4 }}>{d.name}</h3>
+              <p style={{ fontSize: 12, color: textMuted, display: "flex", alignItems: "center", gap: 4, marginBottom: 16 }}>
+                <MapPin size={10} />{d.location}
+              </p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+                fontSize: 12, color: textMuted, borderTop: `1px solid ${borderCol}`, paddingTop: 16 }}>
+                <span>{d.units} vehicles</span>
+                <span style={{ color: GOLD }}>★ {d.rating} ({d.reviews})</span>
               </div>
             </div>
           ))}
@@ -227,18 +433,35 @@ function Dealers() {
 }
 
 function Finance() {
+  const dark = useDark();
+  const sectionBg = dark ? "#050505" : "#F5F3EE";
+  const borderCol = dark ? "#2A2A2A" : "#D8D0C4";
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+
   return (
-    <section className="py-14 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#0F0F0F] to-[#141414] border border-[#2A2A2A] rounded-2xl p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
+    <section style={{ padding: "56px 0", background: sectionBg }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ background: dark ? "#0F0F0F" : "#FFFFFF", border: `1px solid ${borderCol}`, borderRadius: 20,
+          padding: "48px", display: "flex", flexWrap: "wrap",
+          alignItems: "center", justifyContent: "space-between", gap: 32 }}>
           <div>
-            <p className="text-[#DC2626] text-xs uppercase tracking-widest mb-3">Tuta Capital</p>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white mb-3">Get pre-approved in minutes</h2>
-            <p className="text-gray-400 max-w-lg">Finance options available on most vehicles. Competitive rates, flexible terms. Tuta Capital makes vehicle ownership accessible to all South Africans.</p>
+            <SectionLabel>Tuta Capital</SectionLabel>
+            <h2 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(1.4rem, 3vw, 1.9rem)",
+              fontWeight: 700, color: textMain, marginBottom: 12 }}>Get pre-approved in minutes</h2>
+            <p style={{ color: textMuted, maxWidth: 500 }}>
+              Finance options available on most vehicles. Competitive rates, flexible terms.
+              Tuta Capital makes vehicle ownership accessible to all South Africans.
+            </p>
           </div>
-          <div className="flex-shrink-0 flex flex-col gap-3">
-            <button className="bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors whitespace-nowrap">Apply for Finance</button>
-            <button className="border border-[#2A2A2A] hover:border-white text-gray-300 hover:text-white text-sm px-8 py-3 rounded-xl transition-colors whitespace-nowrap text-center">Calculate Repayment</button>
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+            <button style={{ background: RED, color: "white", fontWeight: 600, padding: "14px 32px",
+              borderRadius: 12, border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
+            >Apply for Finance</button>
+            <button style={{ border: `1px solid ${borderCol}`, color: textMuted, fontSize: 14,
+              padding: "12px 32px", borderRadius: 12, background: "transparent",
+              cursor: "pointer", whiteSpace: "nowrap" }}
+            >Calculate Repayment</button>
           </div>
         </div>
       </div>
@@ -247,44 +470,112 @@ function Finance() {
 }
 
 function Partner() {
+  const dark = useDark();
   const [done, setDone] = useState(false);
-  const [f, setF] = useState({ name:"", email:"", phone:"", province:"", type:"individual" });
+  const [f, setF] = useState({ name: "", email: "", phone: "", province: "", type: "individual" });
+  const sectionBg = dark ? "#0A0A0A" : "#EDE9E1";
+  const cardBg = dark ? "#0F0F0F" : "#FFFFFF";
+  const borderCol = dark ? "#2A2A2A" : "#D8D0C4";
+  const inputBg = dark ? "#050505" : "#FAF8F5";
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+  const textDim = dark ? "#6B7280" : "#9CA3AF";
+
   return (
-    <section id="partner" className="py-16 bg-[#0A0A0A] border-t border-[#1E1E1E]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+    <section id="partner" style={{ padding: "64px 0", background: sectionBg, borderTop: `1px solid ${borderCol}` }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
           <div>
-            <p className="text-[#DC2626] text-xs uppercase tracking-widest mb-3">Dealer Opportunity</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">Sell cars under the Tuta Cars brand</h2>
-            <p className="text-gray-400 mb-8 leading-relaxed">We're expanding our dealer network across South Africa. If you're looking to operate a professional, technology-backed dealership with access to floor plan finance and a national buyer base — we want to hear from you.</p>
-            <div className="space-y-4 mb-8">
-              {["Exclusive territory — one pod per area","Technology platform to manage your entire stock","Access to vehicle floor plan finance","Nationwide marketing and lead generation","RMI & NADA compliance support"].map(b => (
-                <div key={b} className="flex items-center gap-3"><CheckCircle size={16} className="text-[#DC2626] flex-shrink-0"/><span className="text-gray-300 text-sm">{b}</span></div>
+            <SectionLabel>Dealer Opportunity</SectionLabel>
+            <h2 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)",
+              fontWeight: 700, color: textMain, marginBottom: 20 }}>
+              Sell cars under the Tuta Cars brand
+            </h2>
+            <p style={{ color: textMuted, marginBottom: 32, lineHeight: 1.7 }}>
+              We are expanding our dealer network across South Africa. If you are looking to operate
+              a professional, technology-backed dealership with access to floor plan finance and a
+              national buyer base, we want to hear from you.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 32 }}>
+              {["Exclusive territory - one pod per area",
+                "Technology platform to manage your entire stock",
+                "Access to vehicle floor plan finance",
+                "Nationwide marketing and lead generation",
+                "RMI & NADA compliance support"].map(b => (
+                <div key={b} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <CheckCircle size={16} style={{ color: RED, flexShrink: 0 }} />
+                  <span style={{ color: textMuted, fontSize: 14 }}>{b}</span>
+                </div>
               ))}
             </div>
-            <p className="text-gray-600 text-sm italic">Complete the form to receive our full dealer information pack, territory map, and fee structure.</p>
+            <p style={{ fontSize: 13, color: GOLD, fontStyle: "italic",
+              borderLeft: `2px solid ${GOLD}`, paddingLeft: 12, opacity: 0.8 }}>
+              Complete the form to receive our full dealer information pack, territory map, and fee structure.
+            </p>
           </div>
-          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-2xl p-6">
+          <div style={{ background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 20, padding: 24 }}>
             {done ? (
-              <div className="text-center py-10">
-                <CheckCircle size={48} className="text-[#DC2626] mx-auto mb-4"/>
-                <h3 className="font-serif text-xl font-bold text-white mb-2">Interest Registered!</h3>
-                <p className="text-gray-400 text-sm">We'll send our full dealer pack to {f.email} within 1 business day.</p>
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <CheckCircle size={48} style={{ color: RED, margin: "0 auto 16px" }} />
+                <h3 style={{ fontFamily: "Georgia, serif", fontSize: 20, fontWeight: 700, color: textMain, marginBottom: 8 }}>Interest Registered!</h3>
+                <p style={{ color: textMuted, fontSize: 14 }}>We will send our full dealer pack to {f.email} within 1 business day.</p>
               </div>
             ) : (
               <>
-                <h3 className="font-serif text-lg font-bold text-white mb-1">Register Your Interest</h3>
-                <p className="text-gray-500 text-sm mb-6">Takes 60 seconds. No commitment required.</p>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className="text-xs text-gray-500 mb-1 block">Full Name</label><input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Your name" className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
-                    <div><label className="text-xs text-gray-500 mb-1 block">Phone</label><input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})} placeholder="+27 ..." className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
+                <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, fontWeight: 700, color: textMain, marginBottom: 4 }}>Register Your Interest</h3>
+                <p style={{ color: textDim, fontSize: 14, marginBottom: 24 }}>Takes 60 seconds. No commitment required.</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    {[{ key: "name", label: "Full Name", ph: "Your name" }, { key: "phone", label: "Phone", ph: "+27 ..." }].map(({ key, label, ph }) => (
+                      <div key={key}>
+                        <label style={{ fontSize: 12, color: textDim, display: "block", marginBottom: 4 }}>{label}</label>
+                        <input value={(f as Record<string, string>)[key]} onChange={e => setF({ ...f, [key]: e.target.value })} placeholder={ph}
+                          style={{ width: "100%", background: inputBg, border: `1px solid ${borderCol}`,
+                            color: textMain, fontSize: 14, borderRadius: 10, padding: "10px 12px", boxSizing: "border-box" }} />
+                      </div>
+                    ))}
                   </div>
-                  <div><label className="text-xs text-gray-500 mb-1 block">Email Address</label><input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@example.com" className="w-full bg-[#050505] border border-[#2A2A2A] text-white text-sm rounded-xl px-3 py-2.5 focus:border-[#DC2626] focus:outline-none placeholder:text-gray-700"/></div>
-                  <div><label className="text-xs text-gray-500 mb-1 block">Preferred Territory</label><div className="relative"><select value={f.province} onChange={e=>setF({...f,province:e.target.value})} className="w-full bg-[#050505] border border-[#2A2A2A] text-gray-300 text-sm rounded-xl px-3 py-2.5 appearance-none focus:border-[#DC2626] focus:outline-none"><option value="">Select province</option>{PROVINCES.slice(1).map(p=><option key={p}>{p}</option>)}</select><ChevronDown size={13} className="absolute right-3 top-3 text-gray-600 pointer-events-none"/></div></div>
-                  <div><label className="text-xs text-gray-500 mb-2 block">I am interested as a</label><div className="flex gap-3">{["individual","existing dealer","investor"].map(t=><button key={t} onClick={()=>setF({...f,type:t})} className={`flex-1 text-xs py-2 rounded-lg border transition-colors capitalize ${f.type===t?"bg-[#DC2626]/10 border-[#DC2626]/40 text-white":"border-[#2A2A2A] text-gray-500 hover:border-[#444]"}`}>{t}</button>)}</div></div>
-                  <button onClick={()=>f.name&&f.email&&setDone(true)} className="w-full bg-[#DC2626] hover:bg-[#b91c1c] text-white font-semibold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">Send Me the Dealer Pack <ArrowRight size={15}/></button>
-                  <p className="text-center text-gray-600 text-[11px]">We respond within 1 business day. Your details are never shared.</p>
+                  <div>
+                    <label style={{ fontSize: 12, color: textDim, display: "block", marginBottom: 4 }}>Email Address</label>
+                    <input value={f.email} onChange={e => setF({ ...f, email: e.target.value })} placeholder="you@example.com"
+                      style={{ width: "100%", background: inputBg, border: `1px solid ${borderCol}`,
+                        color: textMain, fontSize: 14, borderRadius: 10, padding: "10px 12px", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: textDim, display: "block", marginBottom: 4 }}>Preferred Territory</label>
+                    <div style={{ position: "relative" }}>
+                      <select value={f.province} onChange={e => setF({ ...f, province: e.target.value })}
+                        style={{ width: "100%", background: inputBg, border: `1px solid ${borderCol}`,
+                          color: dark ? "#D1D5DB" : "#374151", fontSize: 14,
+                          borderRadius: 10, padding: "10px 32px 10px 12px", appearance: "none" }}>
+                        <option value="">Select province</option>
+                        {PROVINCES.slice(1).map(p => <option key={p}>{p}</option>)}
+                      </select>
+                      <ChevronDown size={13} style={{ position: "absolute", right: 10, top: 13, color: textDim, pointerEvents: "none" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: textDim, display: "block", marginBottom: 8 }}>I am interested as a</label>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      {["individual", "existing dealer", "investor"].map(t => (
+                        <button key={t} onClick={() => setF({ ...f, type: t })}
+                          style={{ flex: 1, fontSize: 12, padding: "8px", borderRadius: 8,
+                            border: `1px solid ${f.type === t ? "rgba(212,175,55,0.5)" : borderCol}`,
+                            background: f.type === t ? "rgba(212,175,55,0.08)" : "transparent",
+                            color: f.type === t ? GOLD : textDim, cursor: "pointer",
+                            textTransform: "capitalize" }}
+                        >{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={() => f.name && f.email && setDone(true)}
+                    style={{ width: "100%", background: RED, color: "white", fontWeight: 600,
+                      padding: 14, borderRadius: 12, border: "none", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                  >Send Me the Dealer Pack <ArrowRight size={15} /></button>
+                  <p style={{ textAlign: "center", color: textDim, fontSize: 11 }}>
+                    We respond within 1 business day. Your details are never shared.
+                  </p>
                 </div>
               </>
             )}
@@ -296,25 +587,78 @@ function Partner() {
 }
 
 function Footer() {
+  const dark = useDark();
+  const footerBg = dark ? "#030303" : "#1A1A1A";
+  const borderCol = dark ? "#111111" : "#2A2A2A";
+  const textMuted = dark ? "#4B5563" : "#6B7280";
+  const textDim = dark ? "#374151" : "#4B5563";
+
   return (
-    <footer className="bg-[#030303] border-t border-[#111]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-          <div><div className="flex items-center gap-2 mb-4"><div className="w-3 h-3 bg-[#DC2626] rounded-sm"/><span className="font-serif text-lg font-bold text-white">TUTA CARS</span></div><p className="text-gray-600 text-sm mb-3">South Africa's verified dealer network. 487 listings. 12 trusted dealers. Nationwide.</p><p className="text-gray-700 text-xs">A Luvium Holdings Company</p></div>
-          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Buy</h4><ul className="space-y-2">{["Browse All Cars","Bakkies & Trucks","SUVs","Luxury Cars","Under R200k","Under R300k"].map(l=><li key={l}><a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">{l}</a></li>)}</ul></div>
-          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Services</h4><ul className="space-y-2">{["Vehicle Finance","Trade-In Valuation","Dealer Portal","Become a Partner","About Tuta Cars"].map(l=><li key={l}><a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">{l}</a></li>)}</ul></div>
-          <div><h4 className="font-serif text-white font-bold mb-4 text-sm">Contact</h4><ul className="space-y-3"><li className="flex items-center gap-2 text-gray-500 text-sm"><Mail size={13} className="text-[#DC2626]"/>info@tutacars.co.za</li><li className="flex items-center gap-2 text-gray-500 text-sm"><Phone size={13} className="text-[#DC2626]"/>+27 (0)11 000 0000</li><li className="flex items-center gap-2 text-gray-500 text-sm"><MapPin size={13} className="text-[#DC2626]"/>Sandton, Johannesburg</li></ul></div>
+    <footer style={{ background: footerBg, borderTop: `1px solid ${borderCol}` }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "48px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 32, marginBottom: 40 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <LogoMark size={26} />
+              <span style={{ fontFamily: "Georgia, serif", fontSize: 17, fontWeight: 700, color: "white" }}>TUTA CARS</span>
+            </div>
+            <p style={{ color: textMuted, fontSize: 13, marginBottom: 8, lineHeight: 1.6 }}>
+              South Africa's verified dealer network. 487 listings. 12 trusted dealers. Nationwide.
+            </p>
+            <p style={{ color: textDim, fontSize: 12 }}>A Luvium Holdings Company</p>
+          </div>
+          <div>
+            <h4 style={{ fontFamily: "Georgia, serif", color: "white", fontWeight: 700, marginBottom: 16, fontSize: 14 }}>Buy</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {["Browse All Cars","Bakkies & Trucks","SUVs","Luxury Cars","Under R200k","Under R300k"].map(l => (
+                <li key={l}><a href="#" style={{ color: textMuted, fontSize: 13, textDecoration: "none" }}>{l}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ fontFamily: "Georgia, serif", color: "white", fontWeight: 700, marginBottom: 16, fontSize: 14 }}>Services</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {["Vehicle Finance","Trade-In Valuation","Dealer Portal","Become a Partner","About Tuta Cars"].map(l => (
+                <li key={l}><a href="#" style={{ color: textMuted, fontSize: 13, textDecoration: "none" }}>{l}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ fontFamily: "Georgia, serif", color: "white", fontWeight: 700, marginBottom: 16, fontSize: 14 }}>Contact</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              {[{ Icon: Mail, text: "info@tutacars.co.za" }, { Icon: Phone, text: "+27 (0)11 000 0000" }, { Icon: MapPin, text: "Sandton, Johannesburg" }].map(({ Icon, text }) => (
+                <li key={text} style={{ display: "flex", alignItems: "center", gap: 8, color: textMuted, fontSize: 13 }}>
+                  <Icon size={13} style={{ color: GOLD }} />{text}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <div className="border-t border-[#111] pt-8"><p className="text-gray-700 text-xs text-center">© 2025 Tuta Cars, a Luvium Holdings Company. RMI Member. NCR Registration Pending. All transactions subject to the National Credit Act 34 of 2005.</p></div>
+        <div style={{ borderTop: `1px solid ${borderCol}`, paddingTop: 32 }}>
+          <p style={{ color: textDim, fontSize: 11, textAlign: "center" }}>
+            © 2025 Tuta Cars, a Luvium Holdings Company. RMI Member. NCR Registration Pending.
+            All transactions subject to the National Credit Act 34 of 2005.
+          </p>
+        </div>
       </div>
     </footer>
   );
 }
 
 export default function Home() {
+  const [dark, setDark] = useState(true);
   return (
-    <main className="bg-[#050505] min-h-screen">
-      <Navbar/><Hero/><BrowseByType/><Listings/><Dealers/><Finance/><Partner/><Footer/>
-    </main>
+    <ThemeCtx.Provider value={dark}>
+      <main style={{ minHeight: "100vh", background: dark ? "#050505" : "#F5F3EE" }}>
+        <Navbar onToggle={() => setDark(d => !d)} />
+        <Hero />
+        <BrowseByType />
+        <Listings />
+        <Dealers />
+        <Finance />
+        <Partner />
+        <Footer />
+      </main>
+    </ThemeCtx.Provider>
   );
-        }
+}
