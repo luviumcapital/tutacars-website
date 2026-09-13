@@ -4,3 +4,4 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 .DS_Store
 *.log
+scratchpad/
