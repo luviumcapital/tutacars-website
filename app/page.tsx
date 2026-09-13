@@ -5,6 +5,8 @@ import {
   Menu, X, SlidersHorizontal, Car, Fuel, Gauge, CheckCircle,
   ExternalLink, Sun, Moon,
 } from "lucide-react";
+import { computeCostOfOwnership, type ListingCostInput } from "@/lib/pricingEngine";
+import CostOfOwnershipCard from "@/app/components/CostOfOwnershipCard";
 
 const GOLD = "#D4AF37";
 const GOLD_LIGHT = "#F0D060";
@@ -30,15 +32,24 @@ const PROVINCES = ["All Provinces","Eastern Cape","Free State","Gauteng","KwaZul
 const PRICE_RANGES = ["Any Price","Under R100k","R100k – R200k","R200k – R350k","R350k – R500k","R500k – R750k","Over R750k"];
 
 const LISTINGS = [
-  { id:1, make:"Toyota", model:"Hilux 2.8 GD-6 RB Legend D/C Auto", year:2023, price:589900, km:"28,400", fuel:"Diesel", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#1a1a2e", verified:true, badge:"Finance Available" },
-  { id:2, make:"BMW", model:"320i M Sport Auto", year:2022, price:489900, km:"41,200", fuel:"Petrol", trans:"Automatic", location:"Cape Town, WC", dealer:"TC-CPT-003", bg:"#16213e", verified:true, badge:"Low Mileage" },
-  { id:3, make:"VW", model:"Tiguan 2.0 TSI R-Line 4Motion", year:2023, price:569900, km:"15,800", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"New Arrival" },
-  { id:4, make:"Ford", model:"Ranger Wildtrak 2.0 Bi-Turbo D/C 4x4", year:2023, price:619900, km:"22,100", fuel:"Diesel", trans:"Automatic", location:"Durban, KZN", dealer:"TC-DBN-001", bg:"#1a1a2e", verified:true, badge:"Finance Available" },
-  { id:5, make:"Hyundai", model:"Tucson 2.0 Premium Auto", year:2022, price:329900, km:"55,300", fuel:"Petrol", trans:"Automatic", location:"Johannesburg, GP", dealer:"TC-JHB-003", bg:"#16213e", verified:true, badge:"Price Drop" },
-  { id:6, make:"Mercedes-Benz", model:"C200 AMG Line Auto", year:2021, price:449900, km:"62,500", fuel:"Petrol", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#0f3460", verified:true, badge:"Certified" },
-  { id:7, make:"Isuzu", model:"D-Max 300 LX Auto D/C 4x4", year:2023, price:559900, km:"18,200", fuel:"Diesel", trans:"Automatic", location:"Nelspruit, Mpumalanga", dealer:"TC-MPM-001", bg:"#1a1a2e", verified:true, badge:"New Arrival" },
-  { id:8, make:"Kia", model:"Sportage 2.0 EX Auto", year:2022, price:359900, km:"38,900", fuel:"Petrol", trans:"Automatic", location:"Port Elizabeth, EC", dealer:"TC-ECP-001", bg:"#16213e", verified:false, badge:"" },
-  { id:9, make:"Honda", model:"CR-V 1.5T Executive AWD Auto", year:2022, price:419900, km:"44,700", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"Finance Available" },
+  { id:1, make:"Toyota", model:"Hilux 2.8 GD-6 RB Legend D/C Auto", year:2023, price:589900, km:"28,400", fuel:"Diesel", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#1a1a2e", verified:true, badge:"Finance Available",
+    segment:"Double-Cab Bakkie", cost:{ price_new:749900, age_years:2.1, odometer_km:28400, maintenance_total:14200, tyres_total:0, insurance_total:38000, expected_lifespan_km:300000, segment_avg_cost_per_km:2.85 } },
+  { id:2, make:"BMW", model:"320i M Sport Auto", year:2022, price:489900, km:"41,200", fuel:"Petrol", trans:"Automatic", location:"Cape Town, WC", dealer:"TC-CPT-003", bg:"#16213e", verified:true, badge:"Low Mileage",
+    segment:"Compact Luxury Sedan", cost:{ price_new:789900, age_years:3.4, odometer_km:41200, maintenance_total:22500, tyres_total:9800, insurance_total:64000, expected_lifespan_km:220000, segment_avg_cost_per_km:4.6 } },
+  { id:3, make:"VW", model:"Tiguan 2.0 TSI R-Line 4Motion", year:2023, price:569900, km:"15,800", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"New Arrival",
+    segment:"Compact SUV", cost:{ price_new:709900, age_years:1.6, odometer_km:15800, maintenance_total:6100, tyres_total:0, insurance_total:29000, expected_lifespan_km:230000, segment_avg_cost_per_km:3.7 } },
+  { id:4, make:"Ford", model:"Ranger Wildtrak 2.0 Bi-Turbo D/C 4x4", year:2023, price:619900, km:"22,100", fuel:"Diesel", trans:"Automatic", location:"Durban, KZN", dealer:"TC-DBN-001", bg:"#1a1a2e", verified:true, badge:"Finance Available",
+    segment:"Double-Cab Bakkie", cost:{ price_new:799900, age_years:1.9, odometer_km:22100, maintenance_total:11400, tyres_total:0, insurance_total:34000, expected_lifespan_km:300000, segment_avg_cost_per_km:2.85 } },
+  { id:5, make:"Hyundai", model:"Tucson 2.0 Premium Auto", year:2022, price:329900, km:"55,300", fuel:"Petrol", trans:"Automatic", location:"Johannesburg, GP", dealer:"TC-JHB-003", bg:"#16213e", verified:true, badge:"Price Drop",
+    segment:"Compact SUV", cost:{ price_new:589900, age_years:3.6, odometer_km:55300, maintenance_total:19800, tyres_total:8200, insurance_total:52000, expected_lifespan_km:230000, segment_avg_cost_per_km:3.7 } },
+  { id:6, make:"Mercedes-Benz", model:"C200 AMG Line Auto", year:2021, price:449900, km:"62,500", fuel:"Petrol", trans:"Automatic", location:"Sandton, Gauteng", dealer:"TC-JHB-001", bg:"#0f3460", verified:true, badge:"Certified",
+    segment:"Compact Luxury Sedan", cost:{ price_new:829900, age_years:4.5, odometer_km:62500, maintenance_total:41000, tyres_total:14500, insurance_total:78000, expected_lifespan_km:220000, segment_avg_cost_per_km:4.6 } },
+  { id:7, make:"Isuzu", model:"D-Max 300 LX Auto D/C 4x4", year:2023, price:559900, km:"18,200", fuel:"Diesel", trans:"Automatic", location:"Nelspruit, Mpumalanga", dealer:"TC-MPM-001", bg:"#1a1a2e", verified:true, badge:"New Arrival",
+    segment:"Double-Cab Bakkie", cost:{ price_new:719900, age_years:1.7, odometer_km:18200, maintenance_total:5400, tyres_total:0, insurance_total:26000, expected_lifespan_km:300000, segment_avg_cost_per_km:2.85 } },
+  { id:8, make:"Kia", model:"Sportage 2.0 EX Auto", year:2022, price:359900, km:"38,900", fuel:"Petrol", trans:"Automatic", location:"Port Elizabeth, EC", dealer:"TC-ECP-001", bg:"#16213e", verified:false, badge:"",
+    segment:"Compact SUV", cost:{ price_new:559900, age_years:3.5, odometer_km:38900, expected_lifespan_km:230000, segment_avg_cost_per_km:3.7 } },
+  { id:9, make:"Honda", model:"CR-V 1.5T Executive AWD Auto", year:2022, price:419900, km:"44,700", fuel:"Petrol", trans:"Automatic", location:"Pretoria, Gauteng", dealer:"TC-PTA-002", bg:"#0f3460", verified:true, badge:"Finance Available",
+    segment:"Compact SUV", cost:{ price_new:629900, age_years:3.4, odometer_km:44700, maintenance_total:16200, tyres_total:7100, insurance_total:47000, expected_lifespan_km:230000, segment_avg_cost_per_km:3.7 } },
 ];
 
 const DEALERS = [
@@ -270,6 +281,8 @@ function Card({ v }: { v: typeof LISTINGS[0] }) {
   const textMuted = dark ? "#9CA3AF" : "#6B7280";
   const textDim = dark ? "#4B5563" : "#9CA3AF";
 
+  const tco = computeCostOfOwnership({ price_asking: v.price, ...v.cost } as ListingCostInput);
+
   return (
     <div style={{ background: cardBg, border: `1px solid ${borderCol}`, borderRadius: 16,
       overflow: "hidden", transition: "border-color 0.2s" }}
@@ -318,6 +331,15 @@ function Card({ v }: { v: typeof LISTINGS[0] }) {
           <MapPin size={11} style={{ color: textDim }} />
           <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.location}</span>
         </div>
+        {tco.forward_total_cost_per_km !== null && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: dark ? "#141414" : "#FAF8F4", borderRadius: 8, padding: "6px 10px", marginBottom: 12 }}>
+            <span style={{ fontSize: 11, color: textMuted }}>Cost to own, going forward</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: dark ? "#FFFFFF" : "#1A1A1A" }}>
+              R{tco.forward_total_cost_per_km.toFixed(2)}/km · {tco.badge}
+            </span>
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontWeight: 700, color: RED, fontSize: 18 }}>{fmt(v.price)}</div>
@@ -331,6 +353,41 @@ function Card({ v }: { v: typeof LISTINGS[0] }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function TrueCostShowcase() {
+  const dark = useDark();
+  const textMain = dark ? "#FFFFFF" : "#1A1A1A";
+  const textMuted = dark ? "#9CA3AF" : "#6B7280";
+  const featured = LISTINGS[1];
+  const result = computeCostOfOwnership({ price_asking: featured.price, ...featured.cost } as ListingCostInput);
+  const financeMonthly = Math.round(featured.price * 0.025);
+
+  return (
+    <section style={{ padding: "56px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px",
+        display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 40, alignItems: "center" }}>
+        <div>
+          <SectionLabel>Not just the price</SectionLabel>
+          <h2 style={{ fontFamily: "Georgia, serif", fontSize: 28, fontWeight: 700, color: textMain, marginBottom: 12 }}>
+            See what a car will actually cost you — before you buy it.
+          </h2>
+          <p style={{ fontSize: 14, color: textMuted, lineHeight: 1.7, marginBottom: 16, maxWidth: 480 }}>
+            Autotrader shows you an asking price. Tuta Cars shows you the True Cost of Ownership:
+            what this exact car has cost its current owner, and what it will cost you per km,
+            per year, and per month going forward — benchmarked against similar cars in its segment.
+          </p>
+          <p style={{ fontSize: 13, color: textMuted, lineHeight: 1.7, maxWidth: 480 }}>
+            Every listing carries a Value Score badge — from{" "}
+            <strong style={{ color: textMain }}>Blue Chip Buy</strong> to{" "}
+            <strong style={{ color: textMain }}>Money Pit Risk</strong> — so you can compare cars
+            on real cost, not just sticker price.
+          </p>
+        </div>
+        <CostOfOwnershipCard result={result} segmentLabel={featured.segment} dark={dark} financeMonthlyInstallment={financeMonthly} />
+      </div>
+    </section>
   );
 }
 
@@ -653,6 +710,7 @@ export default function Home() {
         <Navbar onToggle={() => setDark(d => !d)} />
         <Hero />
         <BrowseByType />
+        <TrueCostShowcase />
         <Listings />
         <Dealers />
         <Finance />
