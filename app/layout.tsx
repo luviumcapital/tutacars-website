@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tuta Cars — South Africa's Franchise Dealer Network",
-  description: "54 exclusive territories. Technology-backed dealership operations. Floor plan finance from Month 6.",
-  keywords: "car dealer franchise South Africa, Tuta Cars, automotive franchise, floor plan finance",
+  title: "Tuta Cars — The clearer way to buy a car",
+  description: "Compare independently inspected cars with real ownership costs and 48-hour test drives from Tuta Cars.",
+  keywords: "used cars, inspected cars, car marketplace, test drive, Tuta Cars",
   openGraph: {
-    title: "Tuta Cars — South Africa's Franchise Dealer Network",
-    description: "54 exclusive territories. Technology-backed operations. Floor plan finance from Month 6.",
+    title: "Tuta Cars — The clearer way to buy a car",
+    description: "Independent inspections. Real ownership costs. A better way to find your next car.",
     url: "https://tutacars.co.za",
     siteName: "Tuta Cars",
     type: "website",
@@ -15,9 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body className="bg-[#0A0A0A] text-white antialiased">{children}</body>
-    </html>
-  );
+  return <html lang="en"><body>{children}</body></html>;
 }
